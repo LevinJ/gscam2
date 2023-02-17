@@ -44,6 +44,7 @@ def generate_launch_description():
             ('/image_raw', '/' + camera_name + '/image_raw'),
             ('/camera_info', '/' + camera_name + '/camera_info'),
         ],
+        prefix=['gdbserver localhost:3000'],
     )
 
     return LaunchDescription([node])

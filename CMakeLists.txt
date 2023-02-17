@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(gscam2)
 
+set(CMAKE_BUILD_TYPE Debug)
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)

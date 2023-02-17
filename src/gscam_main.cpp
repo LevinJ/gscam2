@@ -6,7 +6,9 @@ int main(int argc, char ** argv)
 {
   // Force flush of the stdout buffer
   setvbuf(stdout, nullptr, _IONBF, BUFSIZ);
-
+  for(int i=0; i< argc; i++){
+    std::cout<<argv[i]<<std::endl;
+  }
   rclcpp::init(argc, argv);
 
   // Create NodeOptions, turn off IPC
