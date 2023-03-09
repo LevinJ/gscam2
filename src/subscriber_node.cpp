@@ -16,10 +16,10 @@ ImageSubscriberNode::ImageSubscriberNode(const rclcpp::NodeOptions & options)
     {
       RCLCPP_INFO_ONCE(get_logger(), "receiving messages");    // NOLINT
 
-#undef SHOW_ADDRESS
+// #undef SHOW_ADDRESS
 #ifdef SHOW_ADDRESS
       static int count = 0;
-      RCLCPP_INFO(get_logger(), "%d, %p", count++, reinterpret_cast<std::uintptr_t>(msg.get()));
+      RCLCPP_INFO(get_logger(), "%d, %p", count++, (void *)reinterpret_cast<std::uintptr_t>(msg.get()));
 #else
       (void) this;
       (void) msg;

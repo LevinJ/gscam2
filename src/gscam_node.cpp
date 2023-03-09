@@ -391,12 +391,12 @@ void GSCamNode::impl::process_frame()
       (buf_data) + (buf_size),
       img->data.begin());
 
-#undef SHOW_ADDRESS
+// #undef SHOW_ADDRESS
 #ifdef SHOW_ADDRESS
     static int count = 0;
     RCLCPP_INFO(
       node_->get_logger(), "%d, %p", count++,
-      reinterpret_cast<std::uintptr_t>(img.get()));
+      (void *)reinterpret_cast<std::uintptr_t>(img.get()));
 #endif
 
     // Publish the image/info
