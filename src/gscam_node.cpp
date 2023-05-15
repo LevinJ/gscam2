@@ -10,6 +10,7 @@ extern "C" {
 #include "sensor_msgs/image_encodings.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
+#include "libipc/ipc.h"
 
 namespace gscam2
 {
@@ -372,35 +373,38 @@ void GSCamNode::impl::process_frame()
         " bytes (make sure frames are correctly encoded)", expected_frame_size, (buf_size));
     }
 
-    // Construct Image message
-    auto img = std::make_unique<sensor_msgs::msg::Image>();
+    // // Construct Image message
+    // auto img = std::make_unique<sensor_msgs::msg::Image>();
 
-    img->header = cinfo->header;
+    // img->header = cinfo->header;
 
-    // Image data and metadata
-    img->width = width_;
-    img->height = height_;
-    img->encoding = cxt_.image_encoding_;
-    img->is_bigendian = false;
-    img->data.resize(expected_frame_size);
+    // // Image data and metadata
+    // img->width = width_;
+    // img->height = height_;
+    // img->encoding = cxt_.image_encoding_;
+    // img->is_bigendian = false;
+    // img->data.resize(expected_frame_size);
 
-    // Copy the image, so we can free the buffer allocated by gstreamer
-    img->step = width_ * bytes_per_pixel(cxt_.image_encoding_);
-    std::copy(
-      buf_data,
-      (buf_data) + (buf_size),
-      img->data.begin());
+    // // Copy the image, so we can free the buffer allocated by gstreamer
+    // img->step = width_ * bytes_per_pixel(cxt_.image_encoding_);
+    // std::copy(
+    //   buf_data,
+    //   (buf_data) + (buf_size),
+    //   img->data.begin());
 
+static ipc::shm::handle g_shm(this->cxt_.camera_name_.c_str(),std::size_t(buf_size));
+memcpy(g_shm.get(),buf_data,buf_size);
+std::cout<<g_shm.name()<<", "<<buf_size<<", "<<g_shm.size()<<std::endl;
 // #undef SHOW_ADDRESS
-#ifdef SHOW_ADDRESS
-    static int count = 0;
-    RCLCPP_INFO(
-      node_->get_logger(), "%d, %p", count++,
-      (void *)reinterpret_cast<std::uintptr_t>(img.get()));
-#endif
+// #ifdef SHOW_ADDRESS
+//     static int count = 0;
+//     RCLCPP_INFO(
+//       node_->get_logger(), "%d, %p", count++,
+//       (void *)reinterpret_cast<std::uintptr_t>(img.get()));
+// #endif
 
     // Publish the image/info
-    camera_pub_->publish(std::move(img));
+    // camera_pub_->publish(std::move(img));
     cinfo_pub_->publish(std::move(cinfo));
   }
 

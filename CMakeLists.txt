@@ -72,7 +72,7 @@ target_compile_definitions(gscam_node
 ament_target_dependencies(gscam_node
   ${GSCAM_NODE_DEPS})
 
-target_link_libraries(gscam_node PkgConfig::GSTREAMER PkgConfig::GST_APP)
+target_link_libraries(gscam_node PkgConfig::GSTREAMER PkgConfig::GST_APP ipc)
 target_include_directories(gscam_node PUBLIC
   "$<BUILD_INTERFACE:${GSTREAMER_INCLUDE_DIRS}>")
 rclcpp_components_register_nodes(gscam_node "gscam2::GSCamNode")
