@@ -7,3 +7,10 @@ my_camera/gscam_publisher:
     preroll: False
     use_gst_timestamps: False
     frame_id: 'my_camera_frame'
+fisheye_front/gscam_publisher:
+  ros__parameters:
+    gscam_config: 'v4l2src device=/dev/video2 ! video/x-raw,format=YUY2,width=1920,height=1280,framerate=30/1 ! nvvidconv ! video/x-raw(memory:NVMM),format=BGRx ! nvvidconv ! video/x-raw,format=BGRx,width=1920,height=1280 ! videoconvert ! video/x-raw, format=BGR'
+    preroll: False
+    use_gst_timestamps: False
+    frame_id: 'fisheye_front'
+    shm_name: 'cam0'
