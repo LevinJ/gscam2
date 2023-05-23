@@ -43,8 +43,15 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(ros2_shared REQUIRED)
 find_package(sensor_msgs REQUIRED)
+#Stiching
+find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(cv_bridge REQUIRED)
 
-include_directories(include)
+include_directories(include  
+                    ${EIGEN3_INCLUDE_DIR}
+                    ${OpenCV_INCLUDE_DIRS})
 
 # Create ament index resource which references the libraries in the binary dir
 set(node_plugins "")
@@ -83,7 +90,7 @@ set(node_plugins "${node_plugins}gscam2::GSCamNode;$<TARGET_FILE:gscam_node>\n")
 #=============
 
 set(SUBSCRIBER_NODE_SOURCES
-  src/subscriber_node.cpp)
+  src/subscriber_node.cpp  src/ProcessMgr.cpp  src/bev/image_stitch.cpp)
 
 set(SUBSCRIBER_NODE_DEPS
   class_loader
@@ -98,7 +105,9 @@ target_compile_definitions(subscriber_node
   PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_target_dependencies(subscriber_node
-  ${SUBSCRIBER_NODE_DEPS})
+  ${SUBSCRIBER_NODE_DEPS}
+  "cv_bridge"
+  "OpenCV")
 
 rclcpp_components_register_nodes(subscriber_node "gscam2::ImageSubscriberNode")
 set(node_plugins "${node_plugins}gscam2::ImageSubscriberNode;$<TARGET_FILE:subscriber_node>\n")
@@ -114,6 +123,19 @@ ament_target_dependencies(gscam_main
   ${GSCAM_NODE_DEPS})
 
 target_link_libraries(gscam_main gscam2::gscam_node)
+
+
+#=============
+# GSCam subscriber main, statically linked to make IDE debugging easier
+#=============
+
+add_executable(gscam_sub
+  src/gscam_sub.cpp)
+
+ament_target_dependencies(gscam_sub
+"OpenCV")
+
+target_link_libraries(gscam_sub subscriber_node  ${YAML_CPP_LIBRARIES})
 
 #=============
 # Manual composition of camera and subscriber nodes, IPC=true
@@ -182,6 +204,7 @@ install(
   RUNTIME DESTINATION bin
 )
 
+
 install(
   TARGETS subscriber_node
   EXPORT export_subscriber_node
@@ -191,7 +214,7 @@ install(
 )
 
 install(
-  TARGETS gscam_main ipc_test_main
+  TARGETS gscam_main ipc_test_main gscam_sub
   DESTINATION lib/${PROJECT_NAME}
 )
 

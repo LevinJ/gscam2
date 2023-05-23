@@ -3,7 +3,7 @@
 # Format is namespace_name/node_name
 my_camera/gscam_publisher:
   ros__parameters:
-    gscam_config: 'videotestsrc ! video/x-raw, format=BGRx ! videoconvert'
+    gscam_config: 'videotestsrc pattern=spokes ! video/x-raw, format=BGRx ,width=1920,height=1080! videoconvert'
     preroll: False
     use_gst_timestamps: False
     frame_id: 'my_camera_frame'

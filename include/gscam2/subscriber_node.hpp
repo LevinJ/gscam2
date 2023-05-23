@@ -3,6 +3,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
+#include "ProcessMgr.h"
 
 namespace gscam2
 {
@@ -15,6 +16,8 @@ class ImageSubscriberNode : public rclcpp::Node
 public:
   explicit ImageSubscriberNode(const rclcpp::NodeOptions & options);
 };
+
+semantic_slam::ProcessMgr pm_;
 
 } // namespace gscam2
 
