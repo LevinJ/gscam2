@@ -459,29 +459,56 @@ void ImageStitch::initial_map()
 //          }
 // }
 
-void ImageStitch::gen_undist (std::string img_path, std::string intrinsic_path, float sf)
+void ImageStitch::gen_undist(std::string img_path, std::string intrinsic_path, float sf)
+{
+  /* --------------------------------------------------------------------*/
+  /* Allocate space for the unistorted images                            */
+  /* --------------------------------------------------------------------*/
+  cv::Mat src = cv::imread(img_path);
+
+  cv::Mat dst_persp = gen_undist2(src, intrinsic_path, sf);
+
+  /* --------------------------------------------------------------------*/
+  /* Display image                                                       */
+  /* --------------------------------------------------------------------*/
+  cv::namedWindow("Original fisheye camera image", 1);
+  cv::imshow("Original fisheye camera image", src);
+
+  cv::namedWindow("Undistorted Perspective Image", 1);
+  cv::imshow("Undistorted Perspective Image", dst_persp);
+
+  /* --------------------------------------------------------------------*/
+  /* Save image                                                          */
+  /* --------------------------------------------------------------------*/
+  std::string udimg_path = img_path.substr(0, img_path.size() - 4) + "_undistorted_perspective.png";
+  cv::imwrite(udimg_path, dst_persp);
+  printf("\nImage %s saved\n", udimg_path.c_str());
+
+  /* --------------------------------------------------------------------*/
+  /* Wait until key presses                                              */
+  /* --------------------------------------------------------------------*/
+  cv::waitKey();
+}
+
+cv::Mat ImageStitch::gen_undist2(cv::Mat src, std::string intrinsic_path, float sf)
 {
   ImageStitch::get_ocam_model_yaml(intrinsic_path);
-  /* --------------------------------------------------------------------*/  
-  /* Allocate space for the unistorted images                            */
-  /* --------------------------------------------------------------------*/  
-  cv::Mat src = cv::imread(img_path);
   cv::Mat dst_persp = cv::Mat::zeros(src.size(), CV_8UC3);
 
   cv::Mat mapx_persp = cv::Mat::zeros(src.rows, src.cols, CV_32FC1);
   cv::Mat mapy_persp = cv::Mat::zeros(src.rows, src.cols, CV_32FC1);
 
-  /* --------------------------------------------------------------------  */  
+  /* --------------------------------------------------------------------  */
   /* Create Look-Up-Table for perspective undistortion                     */
   /* SF is kind of distance from the undistorted image to the camera       */
   /* (it is not meters, it is just a zoom fator)                            */
   /* Try to change SF to see how it affects the result                     */
   /* The undistortion is done on a  plane perpendicular to the camera axis */
   /* --------------------------------------------------------------------  */
-  
-  ImageStitch::create_perspecive_undistortion_LUT( mapx_persp, mapy_persp, myocam_model, sf );
 
-  /* --------------------------------------------------------------------*/  
+  ImageStitch::create_perspecive_undistortion_LUT(mapx_persp, mapy_persp, myocam_model, sf);
+
+  /* --------------------------------------------------------------------*/
   /* Undistort using specified interpolation method                      */
   /* Other possible values are (see OpenCV doc):                         */
   /* CV_INTER_NN - nearest-neighbor interpolation,                       */
@@ -489,29 +516,9 @@ void ImageStitch::gen_undist (std::string img_path, std::string intrinsic_path, 
   /* CV_INTER_AREA - resampling using pixel area relation. It is the preferred method for image decimation that gives more-free results. In case of zooming it is similar to CV_INTER_NN method. */
   /* CV_INTER_CUBIC - bicubic interpolation.                             */
   /* --------------------------------------------------------------------*/
-  cv::remap( src, dst_persp, mapx_persp, mapy_persp, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0,0,0) );
+  cv::remap(src, dst_persp, mapx_persp, mapy_persp, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
   // cv::INTER_LINEAR+cv::WARP_FILL_OUTLIERS
-  /* --------------------------------------------------------------------*/
-  /* Display image                                                       */
-  /* --------------------------------------------------------------------*/  
-  cv::namedWindow( "Original fisheye camera image", 1 );
-  cv::imshow( "Original fisheye camera image", src );
-
-  cv::namedWindow( "Undistorted Perspective Image", 1 );
-  cv::imshow( "Undistorted Perspective Image", dst_persp );
-
-  /* --------------------------------------------------------------------*/    
-  /* Save image                                                          */
-  /* --------------------------------------------------------------------*/  
-  std::string udimg_path = img_path.substr(0, img_path.size()-4)+ "_undistorted_perspective.png";
-  cv::imwrite(udimg_path, dst_persp);
-  printf("\nImage %s saved\n",udimg_path.c_str());
-
-  /* --------------------------------------------------------------------*/    
-  /* Wait until key presses                                              */
-  /* --------------------------------------------------------------------*/  
-  cv::waitKey();
-
+  return dst_persp;
 }
 
 void ImageStitch::gen_ipm (std::string img_path, std::string intrinsic_path, std::string extrinsic_path)

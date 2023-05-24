@@ -15,6 +15,10 @@ class ImageSubscriberNode : public rclcpp::Node
 
 public:
   explicit ImageSubscriberNode(const rclcpp::NodeOptions & options);
+private:
+  // Publish images...
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr ocam_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr fisheye_pub_;
 };
 
 semantic_slam::ProcessMgr pm_;

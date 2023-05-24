@@ -49,6 +49,7 @@ struct ex_camera_vehicle
 class ImageStitch
 {
    public:
+   ImageStitch(){}
    ImageStitch(std::string intrinsics_path, std::string extrinsics_path, std::string vehicle_config_path, double alpha_deg, double beta_deg);
    // ImageStitch();
    ~ImageStitch();
@@ -58,6 +59,7 @@ class ImageStitch
    Create undistorted image from extrinsic
    ------------------------------------------------------------------------------*/
    void gen_undist (std::string img_path, std::string intrinsic_path, float sf);
+   cv::Mat gen_undist2 (cv::Mat src, std::string intrinsic_path, float sf);
 
    private:
    std::string intrinsics;

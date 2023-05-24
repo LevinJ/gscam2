@@ -10,22 +10,24 @@
 
 #include <opencv2/imgproc.hpp>
 
-namespace semantic_slam {
+namespace semantic_slam
+{
 
-class ProcessMgr {
-public:
-	ProcessMgr();
-	virtual ~ProcessMgr();
+	class ProcessMgr
+	{
+	public:
+		ProcessMgr();
+		virtual ~ProcessMgr();
 
-	void process_img(cv::Mat im);
+		void process_img(cv::Mat im);
 
-	cv::Mat undistored_ocam;
-	cv::Mat undistored_fisheye;
-private:
-	void undistort_ocam(cv::Mat im);
+		cv::Mat undistored_ocam;
+		cv::Mat undistored_fisheye;
 
-
-};
+	private:
+		void undistort_ocam(cv::Mat im);
+		cv::Mat undistort_fisheye(cv::Mat src);
+	};
 
 } /* namespace semantic_slam */
 

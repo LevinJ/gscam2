@@ -108,7 +108,7 @@ ament_target_dependencies(subscriber_node
   ${SUBSCRIBER_NODE_DEPS}
   "cv_bridge"
   "OpenCV")
-
+  target_link_libraries(subscriber_node ${YAML_CPP_LIBRARIES})
 rclcpp_components_register_nodes(subscriber_node "gscam2::ImageSubscriberNode")
 set(node_plugins "${node_plugins}gscam2::ImageSubscriberNode;$<TARGET_FILE:subscriber_node>\n")
 
@@ -135,7 +135,7 @@ add_executable(gscam_sub
 ament_target_dependencies(gscam_sub
 "OpenCV")
 
-target_link_libraries(gscam_sub subscriber_node  ${YAML_CPP_LIBRARIES})
+target_link_libraries(gscam_sub subscriber_node)
 
 #=============
 # Manual composition of camera and subscriber nodes, IPC=true
