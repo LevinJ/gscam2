@@ -9,8 +9,8 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
 # Your camera namespace
-# camera_name = 'fisheye_front'
-camera_name = 'my_camera'
+camera_name = 'fisheye_front'
+# camera_name = 'my_camera'
 
 # Location of configuration directory
 config_dir = os.path.join(get_package_share_directory('gscam2'), 'cfg')
