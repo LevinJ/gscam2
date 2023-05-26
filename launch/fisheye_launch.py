@@ -26,8 +26,8 @@ print(camera_config)
 
 
 def generate_launch_description():
-    gscam_config = 'videotestsrc pattern=snow ! video/x-raw,width=1280,height=720 ! videoconvert'
-    # gscam_config = 'v4l2src device=/dev/video2 ! video/x-raw,format=YUY2,width=1920,height=1280,framerate=30/1 ! nvvidconv ! video/x-raw(memory:NVMM),format=BGRx ! nvvidconv ! video/x-raw,format=BGRx,width=1920,height=1280 ! videoconvert ! video/x-raw, format=BGR'
+    # gscam_config = 'videotestsrc pattern=snow ! video/x-raw,width=1280,height=720 ! videoconvert'
+    gscam_config = 'v4l2src device=/dev/video2 ! video/x-raw,format=YUY2,width=1920,height=1280,framerate=30/1 ! nvvidconv ! video/x-raw(memory:NVMM),format=BGRx ! nvvidconv ! video/x-raw,format=BGRx,width=1920,height=1280 ! videoconvert ! video/x-raw, format=BGR'
 
     container = ComposableNodeContainer(
         name='my_container',

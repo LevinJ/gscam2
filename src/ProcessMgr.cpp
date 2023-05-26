@@ -67,7 +67,7 @@ namespace semantic_slam
 	}
 	void ProcessMgr::undistort_ocam(cv::Mat im)
 	{
-		std::string intrinsics_path = "/home/levin/workspace/driver_vslam_ros2/install/fisheye_stitching_ros2/share/fisheye_stitching_ros2/config/intrinsics";
+		std::string intrinsics_path = "/home/orin1/driver_vslam_ros2/src/fisheye_stitching_shm/src/fisheye_stitching_ros2/config/intrinsics";
 		// std::string intrinsics_path = "/home/levin/workspace/driver_vslam_ros2/install/fisheye_stitching_ros2/share/fisheye_stitching_ros2/config/intrinsics";
 		ImageStitch obj;
 

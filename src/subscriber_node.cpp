@@ -25,8 +25,10 @@ ImageSubscriberNode::ImageSubscriberNode(const rclcpp::NodeOptions & options)
 
       auto cv_ptr = cv_bridge::toCvShare(msg, "bgr8");
       cv::Mat img = cv_ptr->image;
+      // std::cout<<img.size()<<std::endl;
       //crop the image
-      img = img(cv::Rect(0,0,1920,1080));
+      // img = img(cv::Rect(0,0,1920,1080));
+      img = img(cv::Range(0, 1080), cv::Range(0, 1920));
 
       // std::string img_path = "/media/levin/DATA/zf/semantic_seg/20230511/in_jt_campus/1680156423306309888.jpg";
       // img = cv::imread(img_path);
