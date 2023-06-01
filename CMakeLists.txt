@@ -4,7 +4,7 @@ project(gscam2)
 
 add_compile_definitions(SHOW_ADDRESS)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)

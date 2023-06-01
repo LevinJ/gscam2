@@ -8,6 +8,7 @@ from launch_ros.actions import Node
 
 # Your camera namespace
 camera_name = 'fisheye_front'
+# camera_name = 'my_camera'
 
 # Location of configuration directory
 config_dir = os.path.join(get_package_share_directory('gscam2'), 'cfg')
@@ -36,6 +37,7 @@ def generate_launch_description():
             # A few more parameters
             {
                 'camera_name': camera_name,  # Camera Name
+                'camera_freq': 5,  # Camera frequence
                 'camera_info_url': camera_config,  # Camera calibration information
             },
         ],

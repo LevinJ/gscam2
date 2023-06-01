@@ -10,6 +10,7 @@ extern "C" {
 #include "sensor_msgs/image_encodings.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
+#include "tic_toc.h"
 
 namespace gscam2
 {
@@ -27,6 +28,7 @@ namespace gscam2
   CXT_MACRO_MEMBER(image_encoding, std::string, sensor_msgs::image_encodings::RGB8) /*   */ \
   CXT_MACRO_MEMBER(camera_info_url, std::string, "")        /* Location of camera info file  */ \
   CXT_MACRO_MEMBER(camera_name, std::string, "")            /* Camera name  */ \
+  CXT_MACRO_MEMBER(camera_freq, int, 100)            /* Camera name  */ \
   CXT_MACRO_MEMBER(frame_id, std::string, "camera_frame")   /* Camera frame id  */ \
   /* End of list */
 
@@ -63,6 +65,9 @@ class GSCamNode::impl
 
   // Discover width and height from the incoming data
   int width_, height_;
+
+  //control image publishing freq
+  TicToc tik_toc_;
 
   // Calibration between ros::Time and gst timestamps
   GstClockTime time_offset_;
@@ -390,7 +395,7 @@ void GSCamNode::impl::process_frame()
       buf_data,
       (buf_data) + (buf_size),
       img->data.begin());
-
+    if(tik_toc_.toc() >= 1000.0/cxt_.camera_freq_){
 // #undef SHOW_ADDRESS
 #ifdef SHOW_ADDRESS
     static int count = 0;
@@ -400,8 +405,11 @@ void GSCamNode::impl::process_frame()
 #endif
 
     // Publish the image/info
-    camera_pub_->publish(std::move(img));
-    cinfo_pub_->publish(std::move(cinfo));
+    
+      camera_pub_->publish(std::move(img));
+      cinfo_pub_->publish(std::move(cinfo));
+      tik_toc_.tic();
+    }
   }
 
   // Release the buffer
