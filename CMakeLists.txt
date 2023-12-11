@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(gscam2)
 
-add_compile_definitions(SHOW_ADDRESS)
+# add_compile_definitions(SHOW_ADDRESS)
 
 set(CMAKE_BUILD_TYPE Release)
 # Default to C99

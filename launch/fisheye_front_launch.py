@@ -62,7 +62,9 @@ def generate_launch_description():
 
     cameras = {}
     # cameras['my_camera'] = -1
-    cameras['fisheye_front'] = 2
+    # cameras['fisheye_front'] = 2
+    cameras['left'] = 0
+    cameras['right'] = 2
 
     node_list = []
     for camera_name, camera_id in cameras.items():
