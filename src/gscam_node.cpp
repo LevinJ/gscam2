@@ -11,6 +11,7 @@ extern "C" {
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "tic_toc.h"
+#include "JpgSend.h"
 
 namespace gscam2
 {
@@ -29,6 +30,7 @@ namespace gscam2
   CXT_MACRO_MEMBER(camera_info_url, std::string, "")        /* Location of camera info file  */ \
   CXT_MACRO_MEMBER(camera_name, std::string, "")            /* Camera name  */ \
   CXT_MACRO_MEMBER(camera_freq, int, 100)            /* Camera name  */ \
+  CXT_MACRO_MEMBER(image_jpeg, bool, false)            /* compress image  */ \
   CXT_MACRO_MEMBER(frame_id, std::string, "camera_frame")   /* Camera frame id  */ \
   /* End of list */
 
@@ -77,6 +79,7 @@ class GSCamNode::impl
 
   // ... or compressed images
   rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr jpeg_pub_;
+  std::unique_ptr<semantic_slam::JpgSend> jpg_send_;
 
   // Publish camera info
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr cinfo_pub_;
@@ -249,7 +252,10 @@ bool GSCamNode::impl::create_pipeline()
   if (cxt_.image_encoding_ == "jpeg") {
     jpeg_pub_ =
       node_->create_publisher<sensor_msgs::msg::CompressedImage>("image_raw/compressed", 1);
-  } else {
+  } else if(cxt_.image_jpeg_){
+    jpg_send_ = std::make_unique<semantic_slam::JpgSend>(node_, "image_raw/compressed");
+  }
+  else{
     camera_pub_ = node_->create_publisher<sensor_msgs::msg::Image>("image_raw", 1);
   }
 
@@ -347,6 +353,7 @@ void GSCamNode::impl::process_frame()
   gst_structure_get_int(structure, "width", &width_);
   gst_structure_get_int(structure, "height", &height_);
 
+
   // Update header information
   camera_info_manager::CameraInfo cur_cinfo = camera_info_manager_.getCameraInfo();
   auto cinfo = std::make_unique<sensor_msgs::msg::CameraInfo>(cur_cinfo);
@@ -355,6 +362,15 @@ void GSCamNode::impl::process_frame()
   } else {
     cinfo->header.stamp = node_->now();
   }
+  //update send flag
+  if(tik_toc_.toc() <= 1000.0/cxt_.camera_freq_){
+    // Release the buffer
+    gst_memory_unmap(memory, &info);
+    gst_memory_unref(memory);
+    gst_sample_unref(sample);
+    return;
+  }
+  tik_toc_.tic();
   // RCLCPP_INFO(get_logger(), "Image time stamp: %.3f",cinfo->header.stamp.toSec());
   cinfo->header.frame_id = cxt_.frame_id_;
   if (cxt_.image_encoding_ == "jpeg") {
@@ -365,7 +381,25 @@ void GSCamNode::impl::process_frame()
     std::copy(buf_data, (buf_data) + (buf_size), img->data.begin());
     jpeg_pub_->publish(std::move(img));
     cinfo_pub_->publish(std::move(cinfo));
-  } else {
+  } else if(cxt_.image_jpeg_){
+    // Complain if the returned buffer is smaller than we expect
+    const unsigned int expected_frame_size = width_ * height_ *
+      bytes_per_pixel(cxt_.image_encoding_);
+
+    if (buf_size < expected_frame_size) {
+      RCLCPP_WARN(
+        node_->get_logger(),
+        "Image buffer underflow: expected frame to be %d bytes but got only %lu"
+        " bytes (make sure frames are correctly encoded)", expected_frame_size, (buf_size));
+    }
+
+    cv::Mat img(cv::Size(width_, height_),CV_8UC3, buf_data);
+    img = img.clone();
+
+    jpg_send_->pub_jpg(img, cinfo->header, 1.0);
+    cinfo_pub_->publish(std::move(cinfo));
+
+  }else{
     // Complain if the returned buffer is smaller than we expect
     const unsigned int expected_frame_size = width_ * height_ *
       bytes_per_pixel(cxt_.image_encoding_);
@@ -395,7 +429,7 @@ void GSCamNode::impl::process_frame()
       buf_data,
       (buf_data) + (buf_size),
       img->data.begin());
-    if(tik_toc_.toc() >= 1000.0/cxt_.camera_freq_){
+    // 
 // #undef SHOW_ADDRESS
 #ifdef SHOW_ADDRESS
     static int count = 0;
@@ -405,11 +439,9 @@ void GSCamNode::impl::process_frame()
 #endif
 
     // Publish the image/info
-    
-      camera_pub_->publish(std::move(img));
-      cinfo_pub_->publish(std::move(cinfo));
-      tik_toc_.tic();
-    }
+    camera_pub_->publish(std::move(img));
+    cinfo_pub_->publish(std::move(cinfo));
+
   }
 
   // Release the buffer

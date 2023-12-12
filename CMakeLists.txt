@@ -77,6 +77,7 @@ target_compile_definitions(gscam_node
   PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_target_dependencies(gscam_node
+"OpenCV"
   ${GSCAM_NODE_DEPS})
 
 target_link_libraries(gscam_node PkgConfig::GSTREAMER PkgConfig::GST_APP)
