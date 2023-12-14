@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find-pkg-share gscam2)/launch/fisheye_front_launch.py"/>
+  <node pkg="rtk_serial_driver" exec="rtk_serial_driver" name="rtk_serial_driver"/>
+</launch>
