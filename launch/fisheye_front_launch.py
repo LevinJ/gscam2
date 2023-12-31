@@ -47,6 +47,7 @@ def create_node(camera_name, camera_id):
                 'camera_name': camera_name,  # Camera Name
                 'camera_freq': 25,  # Camera frequence
                 'camera_info_url': camera_config,  # Camera calibration information
+                'image_jpeg': True,
             },
         ],
         # Remap outputs to the correct namespace
@@ -63,8 +64,12 @@ def generate_launch_description():
     cameras = {}
     # cameras['my_camera'] = -1
     # cameras['fisheye_front'] = 2
-    cameras['left'] = 0
-    cameras['right'] = 2
+    # cameras['left'] = 0
+    #for fisheye cameras
+    cameras['fisheye_front'] = 2
+    cameras['fisheye_back'] = 4
+    cameras['fisheye_left'] = 3
+    cameras['fisheye_right'] = 6
 
     node_list = []
     for camera_name, camera_id in cameras.items():

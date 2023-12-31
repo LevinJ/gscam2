@@ -3,8 +3,8 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 import sensor_msgs
-from cv_bridge import CvBridge
 import cv2
+from cv_bridge import CvBridge
 import sys
 
 class MinimalSubscriber(Node):
@@ -23,7 +23,7 @@ class MinimalSubscriber(Node):
     def listener_callback2(self, msg):
         bridge = CvBridge()
         cv_image = bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
-        cv2.imshow(self.input_topic,cv_image )
+        cv2.imshow(self.input_topic,cv_image[...,::-1] )
         cv2.waitKey(1)
         # cv2.imwrite("/home/levin/temp/2.jpg", cv_image)
         return
